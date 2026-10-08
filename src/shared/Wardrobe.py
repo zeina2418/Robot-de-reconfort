@@ -31,7 +31,7 @@ class Wardrobe:
         self._position = Box(self._position.line, self._position.column - 1)
 
     def move_e(self):
-        self._position = Box(self._position.line, (self._position.column + 1) % self.N_LINES)
+        self._position = Box((self._position.line+ 1) % self.N_LINES, self._position.column)
 
     def move_o(self):
-        self._position = Box(self._position.line, (self._position.column - 1) % self.N_LINES)
+        self._position = Box((self._position.line+ 1) % self.N_LINES, self._position.column)
