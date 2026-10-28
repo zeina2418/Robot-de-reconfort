@@ -1,6 +1,6 @@
 from enum import Enum
 
-class Itensity(Enum):
+class Intensity(Enum):
      
     FAIBLE: int = 0
     MOYEN:  int = 1

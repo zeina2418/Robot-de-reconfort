@@ -1,6 +1,6 @@
 from enum import Enum
 
-class TileType(Enum)
+class TileType(Enum):
     LIBRE = 0
     MUR = 1
     DEPART = 2

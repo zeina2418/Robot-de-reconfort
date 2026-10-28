@@ -1,6 +1,6 @@
 from enum import Enum
 
-class Emotion(enum):
+class Emotion(Enum):
 
     JOIE:           int = 0
     CONFIANCE:      int = 1

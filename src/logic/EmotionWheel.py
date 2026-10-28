@@ -1,5 +1,5 @@
 from shared.Emotion import Emotion
-from Wardrobe import Box, Wardrobe
+from shared.Wardrobe import Box, Wardrobe
 
 
 class EmotionWheel:

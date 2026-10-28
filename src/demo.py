@@ -19,6 +19,8 @@ import sys
 from pathlib import Path
 
 import reconfort_io as rio
+from logic.EmotionWheel import EmotionWheel
+from shared.Emotion import Emotion
 
 
 def main(argv):
@@ -92,7 +94,10 @@ def main(argv):
         )
 
     trace.ecrire(chemin_sortie)
-    print(f"\ntrace ecrite : {chemin_sortie}")
+    #print(f"\ntrace ecrite : {chemin_sortie}")
+    wheel = EmotionWheel()
+    d, s = wheel.distance(Emotion.CONFIANCE, Emotion.COLERE)
+    print(f"\ndistance : {d, s}")
     return 0
 
 
