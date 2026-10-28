@@ -1,16 +1,17 @@
-
-from shared import TileType
-
 class Map:
-    
-    def __init__(self, length, width):
-        # initializes map with "0" = LIBRE for all cases
-        self.map = [[0 for _ in range(length)] for _ in range(width)]
 
-    def tile_type(self, length, width):
-        return self.map[length][width]
+    def __init__(self, height: int, width: int):
+        self.height = height
+        self.width = width
 
-    def set_tile_type(self, tile_type, length, width):
-        self.map[length][width] = tile_type
+        # Each cell is a string: "?" means unknown
+        self.grid: list[str] = ["?" * width for _ in range(height)]
 
+    def tile_type(self, row: int, col: int) -> str:
+        # Returns the character representing the cell
+        return self.grid[row][col]
 
+    def set_tile_type(self, tile_type: str, row: int, col: int) -> None:
+        # Replaces the character at the given position
+        line = self.grid[row]
+        self.grid[row] = line[:col] + tile_type + line[col + 1:]
