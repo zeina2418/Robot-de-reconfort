@@ -18,16 +18,22 @@ def shortest_path(start, goals, is_walkable):
     goals = set(goals)
     if start in goals:
         return [start] # if the goal position is the current position then a list containing the current position is returned 
+    # pred is a dictionary of predecessors. It records where each discovered position came from.
     pred = {start: None}
+    # The queue starts with only the starting position
     queue = deque([start])
-    while queue:
-        current = queue.popleft()
+    while queue:# repeat as long as the queue is not empty.
+        current = queue.popleft() # removes the oldest position and stores it in current
+        # checking the surrounding neighbors of the current position
         for nxt in neighbors(current):
-            if nxt in pred or not is_walkable(nxt):
+            if nxt in pred or not is_walkable(nxt): # checking that we're not hitting a wall
                 continue
-            pred[nxt] = current
+            pred[nxt] = current # If the position is valid and has not been discovered, record the position from which it was reached.
+            # Check whether the destination has been found
             if nxt in goals:
+                # As soon as a neighboring position belongs to the set of goals, the function reconstructs and returns the path.
                 return _rebuild(pred, nxt)
+            # Otherwise, add the position to the queue
             queue.append(nxt)
     return None
 
@@ -48,3 +54,6 @@ def to_directions(path):
     # [(1,1),(2,1)] -> ['S']
     names = {delta: name for name, delta in DIRECTIONS}
     return [names[(b[0] - a[0], b[1] - a[1])] for a, b in zip(path, path[1:])]
+
+
+
