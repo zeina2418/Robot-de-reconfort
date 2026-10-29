@@ -4,7 +4,7 @@ from shared.Wardrobe import Box, Wardrobe
 
 class EmotionWheel:
 
-    def __init__(self, start: Box, boxes: Wardrobe, emotions=Emotion):
+    def __init__(self, start: Box, emotions=Emotion):
         self._size = len(Emotion)
 
     CLOCKWISE = 1
@@ -23,9 +23,3 @@ class EmotionWheel:
             return (clockwise, self.CLOCKWISE)
         else:
             return (anticlockwise, self.ANTICLOCKWISE)
-
-    def get_neighbor(self, e: Emotion, distance: int, direction: int) -> Emotion : 
-        # To be a neighbor, it has to be 2 cases distance maximum
-        if (abs(distance) > 2):
-            return -1
-        return Emotion((e.value + distance*direction) % self._size)

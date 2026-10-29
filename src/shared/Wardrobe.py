@@ -4,14 +4,22 @@ from enum import Enum
 from shared.Emotion import Emotion
 from shared.Intensity import Intensity
 
+class Direction(Enum):
+     
+    N:  int = 0  # North
+    S:  int = 1  # South
+    E:  int = 2  # East
+    W:  int = 3  # West
+
+
 class BoxState(Enum):
     UNKNOWN = 0   # the robot never stood in front of it
     EMPTY = 1     # seen, nothing inside
     FILLED = 2    # seen, contains an object
 
 class Box:
-    line: int
-    column: int
+    emotion: int
+    intensity: int
     state: BoxState = BoxState.UNKNOWN
     object: str = ""
 
@@ -51,19 +59,37 @@ class Wardrobe:
     def current(self) -> Box:
         return self._current
 
+    def take_object(self) -> str:
+        return self.current.get_object()
+
+    def check_object(self) -> str:
+        return self.current.object
+
+    def move_route(self, route: list[Direction]):
+        for move in route:
+            if move is Direction.N:
+                self.move_n()
+            if move is Direction.S:
+                self.move_s()
+            if move is Direction.E:
+                self.move_e()
+            if move is Direction.W:
+                self.move_w()
+        return self.current.emotion, self.current.intensity
+
     # Moving methods
     def move_n(self):
-        if (self._current.column == 0):
+        if (self._current.intensity == 0):
             raise ValueError("\\Error: can't move north from column 0")
-        self._current = self._boxes[self._current.line - 1][self._current.column]
+        self._current = self._boxes[self._current.intensity - 1][self._current.emotion]
 
     def move_s(self) -> None:
-        if self._current.line == self.N_LINES - 1:
+        if self._current.intensity == self.N_LINES - 1:
             raise ValueError(f"can't move south from line {self.N_LINES - 1}")
-        self._current = self._boxes[self._current.line + 1][self._current.column]
+        self._current = self._boxes[self._current.intensity + 1][self._current.emotion]
 
     def move_e(self) -> None:
-        self._current = self._boxes[self._current.line][(self._current.column + 1) % self.N_COLUMNS]
+        self._current = self._boxes[self._current.intensity][(self._current.emotion + 1) % self.N_COLUMNS]
 
-    def move_o(self) -> None:
-        self._current = self._boxes[self._current.line][(self._current.column - 1) % self.N_COLUMNS]
+    def move_w(self) -> None:
+        self._current = self._boxes[self._current.intensity][(self._current.emotion - 1) % self.N_COLUMNS]
