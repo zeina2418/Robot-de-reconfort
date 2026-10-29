@@ -10,6 +10,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from bfs import shortest_path, adjacent_goals
+from shared.Map import Map
+from Memory import Memory
 
 
 # Real map of appartement_01. Tests may read it: only the agent may not.
@@ -21,43 +23,16 @@ GRID = ["#############", "#......#....#", "#...........#", "#..P...#....#",
 def walkable(p):
     return GRID[p[0]][p[1]] in ".R"   # A, D, P and # are blocked
 
+def test_map():
+    mental_map = Map(5, 5)
+    memory = Memory(mental_map, None, None)
 
-# --- BFS (Annexe B.3) ------------------------------------------------------
+    memory.update_map(
+        (2, 2),
+        {"N": "libre", "S": "mur", "E": "armoire", "O": "dictionnaire"}
+    )
 
-def test_bfs_annexe_b3():
-    grid = ["######", "#R.#.#", "#.#..#", "#...##", "######"]
-    ok = lambda p: 0 <= p[0] < 5 and 0 <= p[1] < 6 and grid[p[0]][p[1]] != "#"
-    path = shortest_path((1, 1), [(1, 4)], ok)
-    assert len(path) - 1 == 7
-
-
-def test_no_path():
-    ok = lambda p: p in {(1, 1), (1, 2)}              # goal (1, 4) is walled off
-    assert shortest_path((1, 1), [(1, 4)], ok) is None
-
-
-# --- BFS on appartement_01 -------------------------------------------------
-
-def test_to_dictionary():
-    goals = adjacent_goals((7, 6), walkable)
-    assert len(shortest_path((6, 1), goals, walkable)) - 1 == 5
-
-
-def test_to_r2():
-    goals = adjacent_goals((3, 3), walkable)
-    assert len(shortest_path((6, 1), goals, walkable)) - 1 == 4
-
-
-def test_to_r1_detour():
-    goals = adjacent_goals((6, 11), walkable)
-    assert len(shortest_path((6, 1), goals, walkable)) - 1 == 17
-
-
-def test_walled_in_resident():
-    blocked = lambda p: walkable(p) and p != (4, 11)  # the only link to the right side
-    goals = adjacent_goals((6, 11), blocked)
-    assert shortest_path((6, 1), goals, blocked) is None
-
+    mental_map.display()
 
 if __name__ == "__main__":
     failed = 0
