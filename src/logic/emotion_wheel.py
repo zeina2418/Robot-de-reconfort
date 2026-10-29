@@ -1,4 +1,5 @@
 from shared.Emotion import Emotion
+from shared.Intensity import Intensity
 from shared.Wardrobe import Box, Wardrobe
 
 
@@ -23,3 +24,25 @@ class EmotionWheel:
             return (clockwise, self.CLOCKWISE)
         else:
             return (anticlockwise, self.ANTICLOCKWISE)
+
+    def emotions_at(self, emotion: Emotion, distance: int) -> list[Emotion]:
+        if distance == 0:
+            return [emotion]
+        return [Emotion((emotion.value + (self.CLOCKWISE*distance)) % self.size),
+                Emotion((emotion.value + (self.ANTICLOCKWISE*distance)) % self.size)]
+
+    def ordered_intensities(self, intensity: Intensity) -> list[Intensity]:
+        if intensity == Intensity.FAIBLE:
+            return [Intensity.FAIBLE, Intensity.MOYENNE, Intensity.FORTE]
+        if intensity == Intensity.MOYENNE:
+            return [Intensity.MOYENNE, Intensity.FAIBLE, Intensity.FORTE]
+        if intensity == Intensity.FORTE:
+            return [Intensity.FORTE, Intensity.MOYENNE, Intensity.FAIBLE]
+
+    def candidates(self, emotion: Emotion, intensity: Intensity) -> list[tuple[Emotion, Intensity]]:
+        result = []
+        for distance in range(3):
+            for level in self.ordered_intensities(intensity):
+                for neighbor in self.emotions_at(emotion, distance):
+                    result.append((neighbor, level))
+        return result
