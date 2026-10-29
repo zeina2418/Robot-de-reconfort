@@ -6,10 +6,10 @@ from shared.Intensity import Intensity
 
 class Direction(Enum):
      
-    N:  int = 0  # North
-    S:  int = 1  # South
-    E:  int = 2  # East
-    W:  int = 3  # West
+    N = 0  # North
+    S = 1  # South
+    E = 2  # East
+    W = 3  # West
 
 
 class BoxState(Enum):

@@ -2,7 +2,7 @@ from enum import Enum
 
 class Intensity(Enum):
      
-    FAIBLE: int = 0
-    MOYEN:  int = 1
-    FORT:   int = 2
-    OPPOSE:  int = 3
+    FAIBLE:   int = 0
+    MOYENNE:  int = 1
+    FORTE:    int = 2
+    OPPOSE:   int = 3
