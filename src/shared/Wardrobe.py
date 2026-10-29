@@ -1,30 +1,37 @@
 from dataclasses import dataclass
+from enum import Enum
 
 from shared.Emotion import Emotion
 from shared.Intensity import Intensity
 
+class BoxState(Enum):
+    UNKNOWN = 0   # the robot never stood in front of it
+    EMPTY = 1     # seen, nothing inside
+    FILLED = 2    # seen, contains an object
 
 class Box:
     line: int
     column: int
-    known: bool = False
+    state: BoxState = BoxState.UNKNOWN
     object: str = ""
 
     def check_object(self):
         return self.object
 
-    def is_known_object(self):
-        return self.know
-
-    def empty_box(self):
-        return self.know is True and self.object == ""
+    def box_state(self):
+        return self.state
 
     def set_object(self, obj: str):
         self.object = obj
+        self.state = BoxState.FILLED
+
+    def set_empty(self) -> None:
+        self.object = ""
+        self.state = BoxState.EMPTY
 
     def get_object(self):
         obj = self.object
-        self.object = ""
+        self.set_empty()
         return obj
 
 
