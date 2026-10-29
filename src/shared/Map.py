@@ -15,3 +15,7 @@ class Map:
         # Replaces the character at the given position
         line = self.grid[row]
         self.grid[row] = line[:col] + tile_type + line[col + 1:]
+
+    def display(self) -> None:
+        for row in self.grid:
+            print(row)
