@@ -18,7 +18,7 @@ toutes les demandes. C'est a vous d'ecrire celui qui reussit.
 import sys
 from pathlib import Path
 
-import reconfort_io as rio
+import agent.reconfort_io as rio
 from logic.EmotionWheel import EmotionWheel
 from shared.Emotion import Emotion
 
