@@ -4,9 +4,10 @@ from typing import NamedTuple
 
 from robot.memory import WardrobeMemory
 from logic.emotion_wheel import EmotionWheel
-from shared.Wardrobe import Box, BoxState, Direction, Wardrobe
+from shared.Wardrobe import BoxState, Direction, Wardrobe
 from shared.Emotion import Emotion
 from shared.Intensity import Intensity
+from shared.errors import EmptyWardrobeError
 
 
 class Position(NamedTuple):
@@ -48,7 +49,7 @@ class WardrobeSearcher:
 
             # Remove empty box
             self._candidates.popleft()
-        return None
+        raise EmptyWardrobeError(f"No object found in valid boxes for {emotion.name}/{intensity.name}")
 
 
     def target_box(self) -> Optional[Position]:

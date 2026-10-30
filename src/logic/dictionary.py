@@ -3,13 +3,7 @@ from typing import Any, List, Tuple
 
 from shared.Emotion import Emotion
 from shared.Intensity import Intensity
-
-
-class UndeterminedEmotionError(Exception):
-    """No word of the message is in the dictionary"""
-    def __init__(self, message: str = ""):
-        super().__init__(f"Emotion indeterminee: no known word in message {message!r}")
-        self.message = message
+from shared.errors import UndeterminedEmotionError
 
 
 class Dictionary:
@@ -67,4 +61,4 @@ class Dictionary:
             result = self._words.get(word)
             if result is not None:
                 return result
-        raise UndeterminedEmotionError(message)
+        raise UndeterminedEmotionError(f"Emotion indeterminee: no known word in message {message!r}")
