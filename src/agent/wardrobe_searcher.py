@@ -2,7 +2,7 @@ from collections import deque
 from typing import Optional
 from typing import NamedTuple
 
-from agent.wardrobe_memory import WardrobeMemory
+from agent.memory import WardrobeMemory
 from logic.emotion_wheel import EmotionWheel
 from shared.Wardrobe import BoxState, Direction, Wardrobe
 from shared.Emotion import Emotion
