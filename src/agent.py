@@ -10,7 +10,7 @@ sys.path.insert(0, str(SRC))
 
 import reconfort_io as rio
 from shared.Map import Map
-from logic.Memory import Memory
+from robot.memory import Memory
 
 def main(argv):
     if len(argv) != 5:

@@ -35,6 +35,7 @@ class Dictionary:
     def __contains__(self, word: str) -> bool:
         return word in self._words
 
+    @staticmethod
     def normaliser(texte: str) -> List[str]:
         """Decoupe un message en mots comparables au dictionnaire.
 

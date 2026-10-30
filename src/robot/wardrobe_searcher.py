@@ -2,9 +2,9 @@ from collections import deque
 from typing import Optional
 from typing import NamedTuple
 
-from agent.memory import WardrobeMemory
+from robot.memory import WardrobeMemory
 from logic.emotion_wheel import EmotionWheel
-from shared.Wardrobe import BoxState, Direction, Wardrobe
+from shared.Wardrobe import Box, BoxState, Direction, Wardrobe
 from shared.Emotion import Emotion
 from shared.Intensity import Intensity
 
@@ -33,7 +33,7 @@ class WardrobeSearcher:
             if route:
                 self._current = wardrobe.move_route(route)
 
-            box_state = self._memory.box_at(self._current.emotion, self._current.intensity)
+            box_state = self._memory.box_at(self._current.emotion, self._current.intensity).state
 
             if box_state == BoxState.UNKNOWN:
                 self.record_content(wardrobe.check_object())
@@ -45,7 +45,7 @@ class WardrobeSearcher:
             else:
                 # Remove empty box
                 self._candidates.popleft()
-            
+
 
     def target_box(self) -> Optional[Position]:
         while self._candidates and self._memory.state_at(self._candidates[0]) == BoxState.EMPTY:
