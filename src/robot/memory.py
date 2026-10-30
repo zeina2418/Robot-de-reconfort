@@ -54,7 +54,7 @@ class Memory:
     def __init__(self, mentalMap: Map, mentalWardrobe: WardrobeMemory, mentalDictionnary: DictionaryMemory):
             self.map = mentalMap
             self.wardrobe = mentalWardrobe
-            self.dictionnary = mentalDictionnary
+            self.dictionary = mentalDictionnary
             
 
 
