@@ -61,6 +61,6 @@ class WardrobeSearcher:
         moves = [Direction.S if i_steps > 0 else Direction.N] * abs(i_steps)
 
         e_steps, sense = self._wheel.distance(self._current.emotion, target.emotion)
-        moves += [Direction.E if sense == EmotionWheel.CLOCKWISE else Direction.O] * e_steps
+        moves += [Direction.E if sense == EmotionWheel.CLOCKWISE else Direction.W] * e_steps
         return moves
         

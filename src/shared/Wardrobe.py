@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from enum import Enum
 
 from shared.Emotion import Emotion
@@ -18,10 +17,14 @@ class BoxState(Enum):
     FILLED = 2    # seen, contains an object
 
 class Box:
-    emotion: int
     intensity: int
+    emotion: int
     state: BoxState = BoxState.UNKNOWN
     object: str = ""
+
+    def __init__(self, line, column):
+        self.intensity = line
+        self.emotion = column
 
     def check_object(self):
         return self.object
@@ -38,6 +41,8 @@ class Box:
         self.state = BoxState.EMPTY
 
     def get_object(self):
+        if self.state != BoxState.FILLED:
+            raise ValueError("can't take: the box is empty or has not been checked")
         obj = self.object
         self.set_empty()
         return obj
@@ -80,12 +85,12 @@ class Wardrobe:
     # Moving methods
     def move_n(self):
         if (self._current.intensity == 0):
-            raise ValueError("\\Error: can't move north from column 0")
+            raise ValueError("can't move north from line 0")
         self._current = self._boxes[self._current.intensity - 1][self._current.emotion]
 
     def move_s(self) -> None:
         if self._current.intensity == self.N_LINES - 1:
-            raise ValueError(f"can't move south from line {self.N_LINES - 1}")
+            raise ValueError("can't move south from line 0")
         self._current = self._boxes[self._current.intensity + 1][self._current.emotion]
 
     def move_e(self) -> None:

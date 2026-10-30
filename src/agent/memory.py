@@ -20,9 +20,13 @@ class WardrobeMemory:
             ]
 
     def box_at(self, emotion: Emotion, intensity: Intensity) -> Box:
+        if emotion.value >= self.N_COLUMNS or intensity.value >= self.N_LINES:
+            raise ValueError("Position is out of range")
         return self._boxes[intensity.value][emotion.value]
 
     def state_at(self, emotion: Emotion, intensity: Intensity) -> BoxState:
+        if emotion.value >= self.N_COLUMNS or intensity.value >= self.N_LINES:
+            raise ValueError("Position is out of range")
         return self.box_at(emotion, intensity).state
 
     def record(self, emotion, intensity, obj: str | None):
