@@ -10,6 +10,7 @@ sys.path.insert(0, str(SRC))
 
 import reconfort_io as rio
 from shared.Map import Map
+from shared.Wardrobe import Wardrobe
 from robot.memory import Memory
 
 def main(argv):
@@ -32,8 +33,8 @@ def main(argv):
         dictionnaire = rio.charger_dictionnaire(
             dossier_donnees / "dictionnaire.json"
         )
-        armoire = rio.charger_armoire(
-            dossier_donnees / f"{scenario['armoire']}.json"
+        wardrobe = Wardrobe()
+        wardrobe.fill_wardrobe(rio.charger_armoire(dossier_donnees / f"{scenario['armoire']}.json")
         )
     except rio.ErreurFichier as err:
         print(f"Erreur de chargement : {err}", file=sys.stderr)
@@ -47,7 +48,7 @@ def main(argv):
 
     # Temporary skeleton: the decision-making loop comes next.
     position = tuple(carte["depart_robot"])
-    casier = tuple(armoire["casier_depart"])
+    casier = tuple(wardrobe["casier_depart"])
 
     mental_map = Map(
     height=carte["dimensions"]["hauteur"],

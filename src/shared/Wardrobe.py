@@ -58,7 +58,7 @@ class Wardrobe:
             [Box(line, column) for column in range(self.N_COLUMNS)]
             for line in range(self.N_LINES)
         ]
-        self._current = self._boxes[0][0] # start position
+        self._current = self._boxes[0][0] # start position before reading json
 
     @property
     def current(self) -> Box:
@@ -98,3 +98,35 @@ class Wardrobe:
 
     def move_w(self) -> None:
         self._current = self._boxes[self._current.intensity][(self._current.emotion - 1) % self.N_COLUMNS]
+
+    def fill_wardrobe(self, data: dict) -> None:
+        # Place each object in its box
+        emotions = data["emotions"]
+        intensities = data["intensites"]
+        seen = set()
+
+        for entry in data["casiers"]:
+            line, column = entry["ligne"], entry["colonne"]
+
+            # Sanity check for boxes matrix range
+            if not (0 <= line < self.N_LINES and 0 <= column < self.N_COLUMNS):
+                raise ValueError(f"box [{line}, {column}] is outside the wardrobe")
+            if (line, column) in seen:
+                raise ValueError(f"box [{line}, {column}] appears twice")
+            seen.add((line, column))
+
+            # the labels must match the position
+            if (emotions.index(entry["emotion"]) != column or intensities.index(entry["intensite"]) != line):
+                raise ValueError(
+                    f"box [{line}, {column}] has an inconsistent label: "
+                    f"{entry['emotion']}/{entry['intensite']}"
+                )
+
+            if entry["objet"] is not None:
+                self._boxes[line][column].set_object(entry["objet"])
+            else: 
+                self._boxes[line][column].set_empty()
+
+        start_line, start_column = data["casier_depart"]
+        if not (0 <= start_line < self.N_LINES and 0 <= start_column < self.N_COLUMNS):
+            raise ValueError(f"casier_depart [{start_line}, {start_column}] is outside the wardrobe")
