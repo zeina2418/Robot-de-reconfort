@@ -38,11 +38,24 @@ class WardrobeMemory:
         return box.state
 
 
+class DictionaryMemory:
+
+    def __init__(self):
+        self._entries = {}
+
+    def record(self, form: str, emotion: Emotion, intensity: Intensity):
+        self._entries[form] = (emotion, intensity)
+
+    def lookup(self, form: str):
+        return self._entries.get(form)
+
+
 class Memory:
-    def __init__(self, mentalMap: Map, mentalWardrobe: WardrobeMemory, mentalDictionnary):
+    def __init__(self, mentalMap: Map, mentalWardrobe: WardrobeMemory, mentalDictionnary: DictionaryMemory):
             self.map = mentalMap
             self.wardrobe = mentalWardrobe
             self.dictionnary = mentalDictionnary
+            
 
 
     def update_map(self, position, perception):
