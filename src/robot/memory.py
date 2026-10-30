@@ -29,12 +29,13 @@ class WardrobeMemory:
             raise ValueError("Position is out of range")
         return self.box_at(emotion, intensity).state
 
-    def record(self, emotion, intensity, obj: str | None):
+    def record(self, emotion, intensity, obj: str | None) -> BoxState:
         box = self.box_at(emotion, intensity)
         if obj:
             box.set_object(obj)
         else:
             box.set_empty()
+        return box.state
 
 
 class Memory:

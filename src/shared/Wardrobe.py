@@ -130,3 +130,4 @@ class Wardrobe:
         start_line, start_column = data["casier_depart"]
         if not (0 <= start_line < self.N_LINES and 0 <= start_column < self.N_COLUMNS):
             raise ValueError(f"casier_depart [{start_line}, {start_column}] is outside the wardrobe")
+        self._current = self._boxes[start_line][start_column]

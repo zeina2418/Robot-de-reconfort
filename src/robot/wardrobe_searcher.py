@@ -26,35 +26,39 @@ class WardrobeSearcher:
         return self._current
 
     def search(self, emotion: Emotion, intensity: Intensity, wardrobe: Wardrobe):
-        self._candidates = deque(self._wheel.candidates(emotion, intensity))
+        self._candidates = deque(
+            Position(e, i) for e, i in self._wheel.candidates(emotion, intensity)
+        )
 
         while (target := self.target_box()) is not None:
             route = self.get_route(target)
             if route:
-                self._current = wardrobe.move_route(route)
+                e, i = wardrobe.move_route(route)
+                self._current = Position(Emotion(e), Intensity(i))
 
-            box_state = self._memory.box_at(self._current.emotion, self._current.intensity).state
+            box_state = self._memory.state_at(self._current.emotion, self._current.intensity)
 
             if box_state == BoxState.UNKNOWN:
-                self.record_content(wardrobe.check_object())
+                box_state = self.record_content(wardrobe.check_object())
 
             if box_state == BoxState.FILLED:
                 object = wardrobe.take_object()
-                self.record_content()
+                self.record_content(None)
                 return object
-            else:
-                # Remove empty box
-                self._candidates.popleft()
+
+            # Remove empty box
+            self._candidates.popleft()
+        return None
 
 
     def target_box(self) -> Optional[Position]:
-        while self._candidates and self._memory.state_at(self._candidates[0]) == BoxState.EMPTY:
+        while self._candidates and self._memory.state_at(self._candidates[0].emotion, self._candidates[0].intensity) == BoxState.EMPTY:
             # Remove empty box from candidate's list
             self._candidates.popleft()
         return self._candidates[0] if self._candidates else None
 
-    def record_content(self, content: Optional[str]):
-        self._memory.record(self._current.emotion, self._current.intensity, content)
+    def record_content(self, content: Optional[str]) -> BoxState:
+        return self._memory.record(self._current.emotion, self._current.intensity, content)
 
     def get_route(self, target: Position) -> list[Direction]:
         i_steps = target.intensity.value - self._current.intensity.value
