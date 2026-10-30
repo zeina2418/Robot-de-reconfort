@@ -90,7 +90,7 @@ class Wardrobe:
 
     def move_s(self) -> None:
         if self._current.intensity == self.N_LINES - 1:
-            raise ValueError("can't move south from line 0")
+            raise ValueError("can't move south from last line")
         self._current = self._boxes[self._current.intensity + 1][self._current.emotion]
 
     def move_e(self) -> None:
