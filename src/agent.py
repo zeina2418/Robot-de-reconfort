@@ -73,7 +73,7 @@ def main(argv):
     # 2. INITIALIZE ROBOT COMPONENTS
     # --------------------------------------------------
 
-    position = tuple(carte["depart_robot"])
+    appartement.placer_robot(tuple(carte["depart_robot"]))
 
     # TODO: Confirm how Wardrobe stores its initial selector position.
     # Also confirm whether fill_wardrobe() initializes casier_depart.
@@ -99,7 +99,7 @@ def main(argv):
         mentalWardrobe=WardrobeMemory(),
         mentalDictionnary=dictionary
     )
-    memory.map.set_tile_type(".", *position)
+    memory.map.set_tile_type(".", *appartement.robot_position)
 
     
     
@@ -116,17 +116,9 @@ def main(argv):
     )
 
         
-   
-
     def move_robot(direction, numero, observations):
-        nonlocal position
-
-        old_position = position
-
-        new_position, success = appartement.move(position, direction)
-
-        if success:
-            position = new_position
+        old_position = appartement.robot_position
+        _, success = appartement.move(direction)
 
         trace.ajouter_pas(
             demande=numero,
@@ -138,14 +130,17 @@ def main(argv):
         )
 
         return success
-
     # --------------------------------------------------
     # 4. PROCESS REQUESTS
     # --------------------------------------------------
-    def receive_perception(position):
-        observations = appartement.perceive(position)
+    def receive_perception():
+        observations = appartement.perceive()
         observations = valider_perception(observations)
-        memory.update_map(position, observations)
+
+        memory.update_map(
+            appartement.robot_position,
+            observations
+        )
 
         return observations
 
@@ -155,8 +150,8 @@ def main(argv):
         for row_index, row in enumerate(memory.map.grid):
             display_row = list(row)
 
-            if row_index == position[0]:
-                display_row[position[1]] = "R"
+            if row_index == appartement.robot_position[0]:
+                display_row[appartement.robot_position[1]] = "R"
 
             print(" ".join(display_row))
 
@@ -168,22 +163,23 @@ def main(argv):
         print("NAVIGATING")
 
         while True:
-            observations = receive_perception(position)
+            observations = receive_perception()
 
             # Can the robot reach a cell adjacent to the target?
             walkable = lambda pos: is_walkable(memory.map, pos)
             goals = adjacent_goals(target, walkable)
 
-            path = shortest_path(position, goals, walkable)
+            current_position = appartement.robot_position
+            path = shortest_path(current_position, goals, walkable)
 
             # Target reached!
-            if path == [position]:
+            if path == [current_position]:
                 return True
 
             # If no known path, explore one frontier.
             if path is None:
                 path = best_frontier(
-                    position,
+                    current_position,
                     target,
                     memory.map,
                     walkable
@@ -196,47 +192,7 @@ def main(argv):
 
             if not move_robot(direction, numero, observations):
                 return False
-    def navigate_to(target, numero):
-        print("NAVIGATING")
-        while True:
-            observations = receive_perception(position)
-
-            # Try to reach the target using the known map.
-            goals = adjacent_goals(
-                target,
-                lambda pos: is_walkable(memory.map, pos)
-            )
-
-            path = shortest_path(
-                position,
-                goals,
-                lambda pos: is_walkable(memory.map, pos)
-            )
-
-            # Target reached!
-            if path == [position]:
-                return True
-
-            # If no known path, explore one frontier.
-            if path is None:
-                frontiers = exploration_goals(
-                    memory.map,
-                    lambda pos: is_walkable(memory.map, pos)
-                )
-
-                path = shortest_path(
-                    position,
-                    frontiers,
-                    lambda pos: is_walkable(memory.map, pos)
-                )
-
-                if path is None or len(path) < 2:
-                    return False
-
-            direction = to_directions(path)[0]
-
-            if not move_robot(direction, numero, observations):
-                return False
+            
     def search_mental_dictionary(message, memory):
         words = Dictionary.normaliser(message)
 
@@ -266,7 +222,7 @@ def main(argv):
 
         if result is not None:
             word, (emotion, intensite) = result
-            observations = receive_perception(position)
+            observations = receive_perception()
             display_mental_map()
             print(f"Found '{word}' in mental dictionary!")
             print(f"Emotion: {emotion.name}")
@@ -278,12 +234,12 @@ def main(argv):
         
             print("Navigating to Dictionary.")
             if navigate_to(dictionary_position, numero):
-                observations = receive_perception(position)
+                observations = receive_perception()
                 display_mental_map()
 
                 trace.ajouter_pas(
                     demande=numero,
-                    position=position,
+                    position=appartement.robot_position,
                     casier=casier,
                     action="CONSULTER",
                     perception=observations
@@ -310,7 +266,7 @@ def main(argv):
                 continue
         trace.ajouter_pas(
             demande=numero,
-            position=position,
+            position=appartement.robot_position,
             casier=casier,
             action="ATTENDRE",
             argument=None,
@@ -343,7 +299,7 @@ def main(argv):
                         start_position,
                         trace,
                         numero,
-                        position
+                        appartement.robot_position
                     )
         resident_data = next(
             r for r in carte["residents"]
@@ -364,13 +320,13 @@ def main(argv):
             print("Could not reach resident.")
             continue
 
-        observations = receive_perception(position)
+        observations = receive_perception()
 
         print(f"Giving {objet} to {resident}...")
 
         trace.ajouter_pas(
             demande=numero,
-            position=position,
+            position=appartement.robot_position,
             casier=casier,
             action="DONNER",
             argument=objet,
