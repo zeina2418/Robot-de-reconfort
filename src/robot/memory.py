@@ -60,6 +60,8 @@ class Memory:
     def update_map(self, position, perception):
         row, col = position
 
+        self.map.set_tile_type(".", row, col)
+
         directions = {
             "N": (-1, 0),
             "S": (1, 0),

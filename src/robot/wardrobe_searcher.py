@@ -16,11 +16,22 @@ class Position(NamedTuple):
 
 class WardrobeSearcher:
 
-    def __init__(self, memory: WardrobeMemory, wheel: EmotionWheel, start: Position):
+    def __init__(
+        self,
+        memory: WardrobeMemory,
+        wheel: EmotionWheel,
+        start: Position,
+        trace,
+        demande,
+        robot_position
+    ):
         self._memory = memory
         self._wheel = wheel
-        self._current: Position = start # position in front of the selector
-        self._candidates: deque[Position] = deque()
+        self._current = start
+        self._candidates = deque()
+        self._trace = trace
+        self._demande = demande
+        self._robot_position = robot_position
 
     @property
     def current(self) -> Position:
@@ -34,8 +45,36 @@ class WardrobeSearcher:
         while (target := self.target_box()) is not None:
             route = self.get_route(target)
             if route:
-                e, i = wardrobe.move_route(route)
-                self._current = Position(Emotion(e), Intensity(i))
+                print("CURRENT:", self._current)
+                print("TARGET:", target)
+                print("ROUTE:", route)
+                for move in route:
+                    old_casier = (
+                        self._current.intensity.value,
+                        self._current.emotion.value
+                    )
+
+                    direction = {
+                        Direction.N: "N",
+                        Direction.S: "S",
+                        Direction.E: "E",
+                        Direction.W: "O"
+                    }[move]
+
+                    self._trace.ajouter_pas(
+                        demande=self._demande,
+                        position=self._robot_position,
+                        casier=old_casier,
+                        action="CHERCHER",
+                        argument=direction
+                    )
+
+                    wardrobe.move_route([move])
+
+                    self._current = Position(
+                        Emotion(wardrobe.current.emotion),
+                        Intensity(wardrobe.current.intensity)
+                    )
 
             box_state = self._memory.state_at(self._current.emotion, self._current.intensity)
 
@@ -43,7 +82,22 @@ class WardrobeSearcher:
                 box_state = self.record_content(wardrobe.check_object())
 
             if box_state == BoxState.FILLED:
+                old_casier = (
+                    self._current.intensity.value,
+                    self._current.emotion.value
+                )
+
                 object = wardrobe.take_object()
+
+                self._trace.ajouter_pas(
+                    demande=self._demande,
+                    position=self._robot_position,
+                    casier=old_casier,
+                    action="PRENDRE",
+                    argument=object,
+                    contenu_casier=object
+                )
+
                 self.record_content(None)
                 return object
 
@@ -62,10 +116,31 @@ class WardrobeSearcher:
         return self._memory.record(self._current.emotion, self._current.intensity, content)
 
     def get_route(self, target: Position) -> list[Direction]:
-        i_steps = target.intensity.value - self._current.intensity.value
-        moves = [Direction.S if i_steps > 0 else Direction.N] * abs(i_steps)
+        current_row = self._current.intensity.value
+        target_row = target.intensity.value
 
-        e_steps, sense = self._wheel.distance(self._current.emotion, target.emotion)
-        moves += [Direction.E if sense == EmotionWheel.CLOCKWISE else Direction.W] * e_steps
-        return moves
+        current_col = self._current.emotion.value
+        target_col = target.emotion.value
+
+        # Vertical movement
+        if target_row > current_row:
+            vertical_moves = [Direction.S] * (target_row - current_row)
+        else:
+            vertical_moves = [Direction.N] * (current_row - target_row)
+
+        # Horizontal movement
+        e_steps, sense = self._wheel.distance(
+            self._current.emotion,
+            target.emotion
+        )
+
+        horizontal_direction = (
+            Direction.E if sense == EmotionWheel.CLOCKWISE
+            else Direction.W
+        )
+
+        horizontal_moves = [horizontal_direction] * e_steps
+
+        return vertical_moves + horizontal_moves
+
         
