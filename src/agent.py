@@ -20,9 +20,8 @@ from logic.bfs import neighbors, shortest_path, adjacent_goals, to_directions, e
 from perception import valider_perception
 from appartement import Appartement
 
-
-# TODO: Add the correct Dictionary import once its file and class are confirmed.
-# from logic.dictionary import Dictionary
+from logic.dictionary import Dictionary
+from shared.errors import UndeterminedEmotionError
 
 
 def main(argv):
@@ -87,6 +86,7 @@ def main(argv):
 
    # Initialize the robot's mental dictionary.
     dictionary = DictionaryMemory()
+    emotion_dictionary = Dictionary(donnees_dictionnaire)
 
     # Initialize the robot's memory.
     memory = Memory(
@@ -151,6 +151,7 @@ def main(argv):
         print("------------------------------\n")
 
     def navigate_to(target, numero):
+        print("NAVIGATING")
         while True:
             observations = receive_perception(position)
 
@@ -190,8 +191,21 @@ def main(argv):
 
             if not move_robot(direction, numero, observations):
                 return False
+    def search_mental_dictionary(message, memory):
+        words = Dictionary.normaliser(message)
 
+        for word in words:
+            result = memory.dictionary.lookup(word)
+            if result is not None:
+                
+                return word, result
+        
+        return None
+    
+    n = 1
     for demande in scenario["demandes"]:
+        print(f"Numero de la demande : {n}")
+        n = n + 1
 
         numero = demande["numero"]
         resident = demande["resident"]
@@ -200,20 +214,75 @@ def main(argv):
 
         # TODO: Implement the decision-making loop:
 
-        
-        dictionary_position = tuple(carte["dictionnaire"]["position"])
-        #print(dictionary_position)
-        
-        print("Navigating to dictionary...")
+        message = demande["message"]
+        print(message)
 
-        if navigate_to(dictionary_position, numero):
-            print("Reached dictionary!")
-            #print(position)
+        result = search_mental_dictionary(message, memory)
+
+        if result is not None:
+            word, (emotion, intensite) = result
+            observations = receive_perception(position)
+            display_mental_map()
+            print(f"Found '{word}' in mental dictionary!")
+            print(f"Emotion: {emotion.name}")
+            print(f"Intensity: {intensite.name}")
         else:
-            print("Could not reach dictionary.")
+            print("Word not found. Physical dictionary needed.")
+            dictionary_position = tuple(carte["dictionnaire"]["position"])
+            #print(dictionary_position)
+        
+            print("Navigating to Dictionary.")
+            if navigate_to(dictionary_position, numero):
+                observations = receive_perception(position)
+                display_mental_map()
 
-        receive_perception(position)
-        display_mental_map()
+                trace.ajouter_pas(
+                    demande=numero,
+                    position=position,
+                    casier=casier,
+                    action="CONSULTER",
+                    perception=observations
+                )
+
+                try:
+                    emotion, intensite = emotion_dictionary.find_emotion(message)
+
+                    # Store the newly discovered word
+                    for word in Dictionary.normaliser(message):
+                        if word in emotion_dictionary:
+                            memory.dictionary.record(word, emotion, intensite)
+                            print("Word detected.")
+                            print(f"Emotion: {emotion.name}")
+                            print(f"Intensity: {intensite.name}")
+                            break
+
+                except UndeterminedEmotionError:
+                    print("Emotion could not be determined.")
+                    continue
+
+            else:
+                print("Could not reach dictionary.")
+                continue
+        trace.ajouter_pas(
+            demande=numero,
+            position=position,
+            casier=casier,
+            action="ATTENDRE",
+            argument=None,
+            perception=observations
+        )
+
+        wardrobe_position = tuple(carte["armoire"]["position"])
+
+        print("Navigating to wardrobe...")
+
+        if navigate_to(wardrobe_position, numero):
+            display_mental_map()
+            print("Reached wardrobe!")
+        else:
+            print("Could not reach wardrobe.")
+            continue
+
         # 3. Update the mental map.
         # 4. Find a path using BFS.
         # 5. Navigate to the dictionary.
