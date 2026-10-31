@@ -14,14 +14,19 @@ sys.path.insert(0, str(SRC))
 import reconfort_io as rio
 
 from shared.Map import Map
+from shared.Emotion import Emotion
+from shared.Intensity import Intensity
 from shared.Wardrobe import Wardrobe
 from robot.memory import Memory, DictionaryMemory, WardrobeMemory
-from logic.bfs import neighbors, shortest_path, adjacent_goals, to_directions, exploration_goals, is_walkable, next_position
+from logic.bfs import shortest_path, adjacent_goals, to_directions, exploration_goals, is_walkable
 from perception import valider_perception
 from appartement import Appartement
 
 from logic.dictionary import Dictionary
 from shared.errors import UndeterminedEmotionError
+
+from robot.wardrobe_searcher import WardrobeSearcher, Position, EmptyWardrobeError
+from logic.emotion_wheel import EmotionWheel
 
 
 def main(argv):
@@ -96,6 +101,10 @@ def main(argv):
     )
     memory.map.set_tile_type(".", *position)
 
+    
+    
+    
+    
     # --------------------------------------------------
     # 3. INITIALIZE TRACE
     # --------------------------------------------------
@@ -105,6 +114,9 @@ def main(argv):
         nom_scenario=scenario["nom"],
         equipe=["A completer", "A completer"],
     )
+
+        
+   
 
     def move_robot(direction, numero, observations):
         nonlocal position
@@ -211,7 +223,6 @@ def main(argv):
         resident = demande["resident"]
 
 
-
         # TODO: Implement the decision-making loop:
 
         message = demande["message"]
@@ -227,7 +238,7 @@ def main(argv):
             print(f"Emotion: {emotion.name}")
             print(f"Intensity: {intensite.name}")
         else:
-            print("Word not found. Physical dictionary needed.")
+            print("New word detected... Physical dictionary needed.")
             dictionary_position = tuple(carte["dictionnaire"]["position"])
             #print(dictionary_position)
         
@@ -251,7 +262,7 @@ def main(argv):
                     for word in Dictionary.normaliser(message):
                         if word in emotion_dictionary:
                             memory.dictionary.record(word, emotion, intensite)
-                            print("Word detected.")
+                            print(f"Word detected: '{word}'")
                             print(f"Emotion: {emotion.name}")
                             print(f"Intensity: {intensite.name}")
                             break
@@ -282,6 +293,71 @@ def main(argv):
         else:
             print("Could not reach wardrobe.")
             continue
+
+        
+        # Initializing wardrobe searcher
+        wheel = EmotionWheel()
+        
+    
+        start_position = Position(
+            emotion=Emotion(wardrobe.current.emotion),
+            intensity=Intensity(wardrobe.current.intensity)
+        )
+        wardrobe_searcher = WardrobeSearcher(
+                        memory.wardrobe,
+                        wheel,
+                        start_position,
+                        trace,
+                        numero,
+                        position
+                    )
+        resident_data = next(
+            r for r in carte["residents"]
+            if r["id"] == resident
+        )
+
+        try:
+            objet = wardrobe_searcher.search(emotion, intensite, wardrobe)
+            print(f"Object found: {objet}")
+        except EmptyWardrobeError:
+            print("No suitable object found.")
+
+        resident_position = tuple(resident_data["position"])
+
+        print(f"Navigating to resident {resident}...")
+
+        if not navigate_to(resident_position, numero):
+            print("Could not reach resident.")
+            continue
+
+        observations = receive_perception(position)
+
+        print(f"Giving {objet} to {resident}...")
+
+        trace.ajouter_pas(
+            demande=numero,
+            position=position,
+            casier=casier,
+            action="DONNER",
+            argument=objet,
+            perception=observations
+        )
+
+        trace.ajouter_livraison(
+            demande=numero,
+            resident=resident,
+            emotion=emotion.name,
+            intensite=intensite.name,
+            casier_choisi=(
+                wardrobe_searcher.current.intensity.value,
+                wardrobe_searcher.current.emotion.value
+            ),
+            repli="aucun",
+            objet=objet,
+            succes=True
+        )
+
+        print(f"Object {objet} delivered to {resident}!")
 
         # 3. Update the mental map.
         # 4. Find a path using BFS.

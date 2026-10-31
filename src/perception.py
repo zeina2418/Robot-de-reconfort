@@ -1,4 +1,5 @@
 
+# les quatre directions le robot peut observer
 DIRECTIONS = ("N", "S", "E", "O")
 
 TYPES_CASES = {
@@ -9,7 +10,12 @@ TYPES_CASES = {
     "resident",
 }
 
-
+""" voici un example d'une observation observations = {
+    "N": "mur",
+    "S": "libre",
+    "E": "resident",
+    "O": "armoire"
+}"""
 def valider_perception(observations):
     """Vérifie que les quatre observations locales sont valides."""
     if set(observations) != set(DIRECTIONS):

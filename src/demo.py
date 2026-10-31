@@ -11,15 +11,15 @@ Ce script ne resout rien. Il montre seulement :
 Le robot de cette demo n'avance pas, ne consulte rien, et echoue sur
 toutes les demandes. C'est a vous d'ecrire celui qui reussit.
 
-    python3 demo.py cartes/appartement_01.json cartes/scenario_01.json \
+    python3 demo.py cartes/appartement_01.json cartes/scenario_01.json 
         donnees sorties/trace_01.json
 """
 
 import sys
 from pathlib import Path
 
-import agent.reconfort_io as rio
-from logic.EmotionWheel import EmotionWheel
+import reconfort_io as rio
+from logic.emotion_wheel import EmotionWheel
 from shared.Emotion import Emotion
 
 

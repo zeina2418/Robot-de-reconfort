@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from bfs import shortest_path, adjacent_goals
 from shared.Map import Map
-from Memory import Memory
+from robot.memory import Memory
 
 
 # Real map of appartement_01. Tests may read it: only the agent may not.
