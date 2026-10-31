@@ -261,7 +261,7 @@ def main(argv):
                         if word in emotion_dictionary:
                             memory.dictionary.record(word, emotion, intensite)
                             break
-                    memory.dictionary.record_absent(word)   # before the match: not in the dictionary
+                        memory.dictionary.record_absent(word)   # before the match: not in the dictionary
 
                 except UndeterminedEmotionError as err:
                     for word in Dictionary.normaliser(message):
@@ -306,13 +306,15 @@ def main(argv):
             emotion=Emotion(wardrobe.current.emotion),
             intensity=Intensity(wardrobe.current.intensity)
         )
+        observations = receive_perception()
         wardrobe_searcher = WardrobeSearcher(
                         memory.wardrobe,
                         wheel,
                         start_position,
                         trace,
                         numero,
-                        appartement.robot_position
+                        appartement.robot_position,
+                        observations
                     )
         print("Resident demandé :", repr(resident))
         print("Résidents disponibles :", [
@@ -356,8 +358,8 @@ def main(argv):
         trace.ajouter_livraison(
             demande=numero,
             resident=resident,
-            emotion=emotion.name,
-            intensite=intensite.name,
+            emotion=emotion.name.lower() if emotion else None,
+            intensite=intensite.name.lower() if intensite else None,
             casier_choisi=(
                 wardrobe_searcher.current.intensity.value,
                 wardrobe_searcher.current.emotion.value

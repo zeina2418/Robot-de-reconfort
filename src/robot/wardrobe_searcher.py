@@ -29,7 +29,8 @@ class WardrobeSearcher:
         start: Position,
         trace,
         demande,
-        robot_position
+        robot_position,
+        perception
     ):
         self._memory = memory
         self._wheel = wheel
@@ -38,6 +39,8 @@ class WardrobeSearcher:
         self._trace = trace
         self._demande = demande
         self._robot_position = robot_position
+        self._perception = perception
+
 
     @property
     def current(self) -> Position:
@@ -52,14 +55,16 @@ class WardrobeSearcher:
             route = self.get_route(target)
             for move in route:
                 box_state = self._memory.state_at(self._current.emotion, self._current.intensity)
-                self.look_content(wardrobe)
+                content = self.look_content(wardrobe)
 
                 self._trace.ajouter_pas(
                     demande=self._demande,
                     position=self._robot_position,
                     casier=(self._current.intensity.value, self._current.emotion.value),
                     action="CHERCHER",
-                    argument=DIRECTION_NAMES[move]
+                    argument=DIRECTION_NAMES[move],
+                    perception=self._perception,
+                    contenu_casier=content
                 )
 
                 wardrobe.move_route([move])
@@ -80,6 +85,7 @@ class WardrobeSearcher:
                     casier=(self._current.intensity.value, self._current.emotion.value),
                     action="PRENDRE",
                     argument=object,
+                    perception=self._perception,
                     contenu_casier=object
                 )
 
