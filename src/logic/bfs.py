@@ -97,3 +97,12 @@ def next_position(position, direction):
     dr, dc = moves[direction]
     return (position[0] + dr, position[1] + dc)
 
+def unknown_cells(mental_map):
+    unknown = []
+
+    for row in range(mental_map.height):
+        for col in range(mental_map.width):
+            if mental_map.tile_type(row, col) == "?":
+                unknown.append((row, col))
+
+    return unknown
