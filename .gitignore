@@ -1,6 +1,3 @@
 __pycache__/
 *.pyc
 settings.json
-testWardrobe.py
-testDict.py
-testWardrobeFlow.py
