@@ -86,5 +86,14 @@ def to_directions(path):
     names = {delta: name for name, delta in DIRECTIONS}
     return [names[(b[0] - a[0], b[1] - a[1])] for a, b in zip(path, path[1:])]
 
+def next_position(position, direction):
+    moves = {
+        "N": (-1, 0),
+        "S": (1, 0),
+        "E": (0, 1),
+        "O": (0, -1)
+    }
 
+    dr, dc = moves[direction]
+    return (position[0] + dr, position[1] + dc)
 
