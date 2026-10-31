@@ -5,7 +5,7 @@ from shared.Wardrobe import Box, Wardrobe
 
 class EmotionWheel:
 
-    def __init__(self, start: Box, emotions=Emotion):
+    def __init__(self):
         self._size = len(Emotion)
 
     CLOCKWISE = 1
