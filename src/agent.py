@@ -32,20 +32,17 @@ from logic.emotion_wheel import EmotionWheel
 def main(argv):
 
     # Check command-line arguments.
-    if len(argv) != 5:
-        print(
-            "Usage: python agent.py "
-            "carte.json scenario.json dossier_donnees trace_sortie.json",
-            file=sys.stderr,
-        )
+    if len(argv) not in (5, 6):
+        print("Usage: python agent.py carte.json scenario.json dossier_donnees trace.json [armoire]",
+          file=sys.stderr)
         return 2
 
     chemin_carte = Path(argv[1])
     chemin_scenario = Path(argv[2])
     dossier_donnees = Path(argv[3])
     chemin_sortie = Path(argv[4])
-
     
+
 
     # --------------------------------------------------
     # 1. LOAD INPUT DATA
@@ -54,13 +51,14 @@ def main(argv):
     try:
         carte = rio.charger_carte(chemin_carte)
         scenario = rio.charger_scenario(chemin_scenario)
+        nom_armoire = argv[5] if len(argv) == 6 else scenario["armoire"]
 
         donnees_dictionnaire = rio.charger_dictionnaire(
             dossier_donnees / "dictionnaire.json"
         )
 
         donnees_armoire = rio.charger_armoire(
-            dossier_donnees / f"{scenario['armoire']}.json"
+            (dossier_donnees / f"{nom_armoire}.json")
         )
 
     except rio.ErreurFichier as err:
@@ -75,13 +73,8 @@ def main(argv):
 
     appartement.placer_robot(tuple(carte["depart_robot"]))
 
-    # TODO: Confirm how Wardrobe stores its initial selector position.
-    # Also confirm whether fill_wardrobe() initializes casier_depart.
     wardrobe = Wardrobe()
     wardrobe.fill_wardrobe(donnees_armoire)
-
-    # retrieve the selector position.
-    casier = tuple(donnees_armoire["casier_depart"])
 
     # Create the robot's mental map.
     mental_map = Map(
@@ -124,7 +117,7 @@ def main(argv):
         trace.ajouter_pas(
             demande=numero,
             position=old_position,
-            casier=casier,
+            casier=wardrobe.current_casier(),
             action="AVANCER",
             argument=direction,
             perception=observations
@@ -203,6 +196,20 @@ def main(argv):
                 return word, result
         
         return None
+
+    def log_failure(numero, resident, emotion, intensite, motif):
+        print(f"Request {numero} failed: {motif}")
+        trace.ajouter_livraison(
+            demande=numero,
+            resident=resident,
+            emotion=emotion.name.lower() if emotion else None,
+            intensite=intensite.name.lower() if intensite else None,
+            casier_choisi=None,
+            repli="aucun",
+            objet=None,
+            succes=False,
+            motif_echec=motif,
+        )
     
     n = 1
     for demande in scenario["demandes"]:
@@ -243,7 +250,7 @@ def main(argv):
                 trace.ajouter_pas(
                     demande=numero,
                     position=appartement.robot_position,
-                    casier=casier,
+                    casier=wardrobe.current_casier(),
                     action="CONSULTER",
                     perception=observations
                 )
@@ -260,18 +267,20 @@ def main(argv):
                             print(f"Intensity: {intensite.name}")
                             break
 
-                except UndeterminedEmotionError:
+                except UndeterminedEmotionError as err:
                     print("Emotion could not be determined.")
+                    log_failure(numero, resident, None, None, err.MOTIF)
                     continue
 
             else:
                 print("Could not reach dictionary.")
+                log_failure(numero, resident, None, None, "dictionnaire inaccessible")
                 continue
         display_mental_map()
         trace.ajouter_pas(
             demande=numero,
             position=appartement.robot_position,
-            casier=casier,
+            casier=wardrobe.current_casier(),
             action="ATTENDRE",
             argument=None,
             perception=observations
@@ -287,6 +296,7 @@ def main(argv):
             print("Reached wardrobe!")
         else:
             print("Could not reach wardrobe.")
+            log_failure(numero, resident, emotion, intensite, "armoire inaccessible")
             continue
 
         
@@ -318,15 +328,17 @@ def main(argv):
         try:
             objet = wardrobe_searcher.search(emotion, intensite, wardrobe)
             print(f"Object found: {objet}")
-        except EmptyWardrobeError:
+        except EmptyWardrobeError as err:
             print("No suitable object found.")
+            log_failure(numero, resident, emotion, intensite, err.MOTIF)   # "armoire vide"
+            continue
 
         resident_position = tuple(resident_data["position"])
 
         print(f"Navigating to resident {resident}...")
 
         if not navigate_to(resident_position, numero):
-            print("Could not reach resident.")
+            log_failure(numero, resident, emotion, intensite, "resident inaccessible")
             continue
 
         observations = receive_perception()
@@ -337,7 +349,7 @@ def main(argv):
         trace.ajouter_pas(
             demande=numero,
             position=appartement.robot_position,
-            casier=casier,
+            casier=wardrobe.current_casier(),
             action="DONNER",
             argument=objet,
             perception=observations
@@ -352,7 +364,8 @@ def main(argv):
                 wardrobe_searcher.current.intensity.value,
                 wardrobe_searcher.current.emotion.value
             ),
-            repli="aucun",
+            repli=wheel.fallback_label(emotion, intensite, 
+                                       wardrobe_searcher.current.emotion, wardrobe_searcher.current.intensity),
             objet=objet,
             succes=True
         )

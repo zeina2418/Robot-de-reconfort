@@ -9,6 +9,12 @@ from shared.Emotion import Emotion
 from shared.Intensity import Intensity
 from shared.errors import EmptyWardrobeError
 
+DIRECTION_NAMES = {
+    Direction.N: "N",
+    Direction.S: "S",
+    Direction.E: "E",
+    Direction.W: "O",   # the trace uses "O" (Ouest), the enum uses W
+}
 
 class Position(NamedTuple):
     emotion: Emotion
@@ -44,52 +50,34 @@ class WardrobeSearcher:
 
         while (target := self.target_box()) is not None:
             route = self.get_route(target)
-            if route:
-                for move in route:
-                    old_casier = (
-                        self._current.intensity.value,
-                        self._current.emotion.value
-                    )
+            for move in route:
+                box_state = self._memory.state_at(self._current.emotion, self._current.intensity)
+                self.look_content(wardrobe)
 
-                    direction = {
-                        Direction.N: "N",
-                        Direction.S: "S",
-                        Direction.E: "E",
-                        Direction.W: "O"
-                    }[move]
-
-                    self._trace.ajouter_pas(
-                        demande=self._demande,
-                        position=self._robot_position,
-                        casier=old_casier,
-                        action="CHERCHER",
-                        argument=direction
-                    )
-
-                    wardrobe.move_route([move])
-
-                    self._current = Position(
-                        Emotion(wardrobe.current.emotion),
-                        Intensity(wardrobe.current.intensity)
-                    )
-
-            box_state = self._memory.state_at(self._current.emotion, self._current.intensity)
-
-            if box_state == BoxState.UNKNOWN:
-                box_state = self.record_content(wardrobe.check_object())
-
-            if box_state == BoxState.FILLED:
-                old_casier = (
-                    self._current.intensity.value,
-                    self._current.emotion.value
+                self._trace.ajouter_pas(
+                    demande=self._demande,
+                    position=self._robot_position,
+                    casier=(self._current.intensity.value, self._current.emotion.value),
+                    action="CHERCHER",
+                    argument=DIRECTION_NAMES[move]
                 )
 
+                wardrobe.move_route([move])
+
+                self._current = Position(
+                    Emotion(wardrobe.current.emotion),
+                    Intensity(wardrobe.current.intensity)
+                )
+
+            self.look_content(wardrobe)
+            box_state = self._memory.state_at(self._current.emotion, self._current.intensity)
+            if box_state == BoxState.FILLED:
                 object = wardrobe.take_object()
 
                 self._trace.ajouter_pas(
                     demande=self._demande,
                     position=self._robot_position,
-                    casier=old_casier,
+                    casier=(self._current.intensity.value, self._current.emotion.value),
                     action="PRENDRE",
                     argument=object,
                     contenu_casier=object
@@ -109,15 +97,18 @@ class WardrobeSearcher:
             self._candidates.popleft()
         return self._candidates[0] if self._candidates else None
 
+    def look_content(self, wardrobe: Wardrobe) -> Optional[str]:
+        box = self._memory.box_at(self._current.emotion, self._current.intensity)
+        if box.state == BoxState.UNKNOWN:
+            self.record_content(wardrobe.check_object() or None)
+        return box.check_object() or None
+
     def record_content(self, content: Optional[str]) -> BoxState:
         return self._memory.record(self._current.emotion, self._current.intensity, content)
 
     def get_route(self, target: Position) -> list[Direction]:
         current_row = self._current.intensity.value
         target_row = target.intensity.value
-
-        current_col = self._current.emotion.value
-        target_col = target.emotion.value
 
         # Vertical movement
         if target_row > current_row:
@@ -126,15 +117,9 @@ class WardrobeSearcher:
             vertical_moves = [Direction.N] * (current_row - target_row)
 
         # Horizontal movement
-        e_steps, sense = self._wheel.distance(
-            self._current.emotion,
-            target.emotion
-        )
+        e_steps, sense = self._wheel.distance(self._current.emotion, target.emotion)
 
-        horizontal_direction = (
-            Direction.E if sense == EmotionWheel.CLOCKWISE
-            else Direction.W
-        )
+        horizontal_direction = (Direction.E if sense == EmotionWheel.CLOCKWISE else Direction.W)
 
         horizontal_moves = [horizontal_direction] * e_steps
 

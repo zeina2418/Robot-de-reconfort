@@ -64,6 +64,9 @@ class Wardrobe:
     def current(self) -> Box:
         return self._current
 
+    def current_casier(self):
+        return (self.current.intensity, self.current.emotion)
+
     def take_object(self) -> str:
         return self.current.get_object()
 

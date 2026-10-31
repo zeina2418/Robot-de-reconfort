@@ -46,3 +46,9 @@ class EmotionWheel:
                 for neighbor in self.emotions_at(emotion, distance):
                     result.append((neighbor, level))
         return result
+
+    def fallback_label(self, asked_emotion, asked_intensity, found_emotion, found_intensity) -> str:
+        distance, _ = self.distance(asked_emotion, found_emotion)
+        if distance == 0:
+            return "aucun" if found_intensity == asked_intensity else "intensite"
+        return f"voisine_{distance}"

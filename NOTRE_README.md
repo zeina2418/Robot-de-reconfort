@@ -1,4 +1,4 @@
-# Robot de réconfort — ABDEL SATTAR & NOM2
+# Robot de réconfort — ABDEL SATTAR & GUIMARAES CAIXETA SILVA
 
 Projet de semestre — Master Informatique.
 
@@ -12,13 +12,17 @@ Ce projet consiste à développer un robot de réconfort capable d'aider un rés
 Depuis la racine du projet, exécuter la commande suivante :
 
 ```bash
-python3 src/agent.py <carte.json> <scenario.json> <dossier_donnees> <trace_sortie.json>
+python3 src/agent.py <carte.json> <scenario.json> <dossier_donnees> <trace_sortie.json> [<armoire>]
 ```
 
 Exemple :
 
 ```bash
-python3 src/agent.py data/cartes/appartement_01.json data/cartes/scenario_01.json data/donnees /test/sortie_agent.json
+python3 src/agent.py data/cartes/appartement_01.json data/cartes/scenario_01.json data/donnees test/sortie_agent.json
+```
+
+```bash
+python3 src/agent.py data/cartes/appartement_01.json data/cartes/scenario_01.json data/donnees test/sortie_agent.json armoire_standard2
 ```
 
 Les quatre arguments correspondent à :
