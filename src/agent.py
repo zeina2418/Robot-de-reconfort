@@ -187,15 +187,13 @@ def main(argv):
                 return False
             
     def search_mental_dictionary(message, memory):
-        words = Dictionary.normaliser(message)
-
-        for word in words:
+        for word in Dictionary.normaliser(message):
+            if not memory.dictionary.knows(word):
+                return None                        # could be in the real dictionary: go and look
             result = memory.dictionary.lookup(word)
             if result is not None:
-                
                 return word, result
-        
-        return None
+        return None                                # everything known absent: consult anyway
 
     def log_failure(numero, resident, emotion, intensite, motif):
         print(f"Request {numero} failed: {motif}")
@@ -262,12 +260,12 @@ def main(argv):
                     for word in Dictionary.normaliser(message):
                         if word in emotion_dictionary:
                             memory.dictionary.record(word, emotion, intensite)
-                            print(f"Word detected: '{word}'")
-                            print(f"Emotion: {emotion.name}")
-                            print(f"Intensity: {intensite.name}")
                             break
+                    memory.dictionary.record_absent(word)   # before the match: not in the dictionary
 
                 except UndeterminedEmotionError as err:
+                    for word in Dictionary.normaliser(message):
+                        memory.dictionary.record_absent(word)
                     print("Emotion could not be determined.")
                     log_failure(numero, resident, None, None, err.MOTIF)
                     continue

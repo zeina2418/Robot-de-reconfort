@@ -45,6 +45,12 @@ class DictionaryMemory:
     def record(self, form: str, emotion: Emotion, intensity: Intensity):
         self._entries[form] = (emotion, intensity)
 
+    def record_absent(self, form):
+        self._entries[form] = None
+
+    def knows(self, form) -> bool:
+        return form in self._entries
+
     def lookup(self, form: str):
         return self._entries.get(form)
 
@@ -54,7 +60,6 @@ class Memory:
             self.map = mentalMap
             self.wardrobe = mentalWardrobe
             self.dictionary = mentalDictionnary
-            
 
 
     def update_map(self, position, perception):
