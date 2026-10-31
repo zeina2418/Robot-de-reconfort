@@ -160,7 +160,7 @@ def main(argv):
     
 
     def navigate_to(target, numero):
-        print("NAVIGATING")
+        print(f"Navigating to {target}")
 
         while True:
             observations = receive_perception()
@@ -306,6 +306,10 @@ def main(argv):
                         numero,
                         appartement.robot_position
                     )
+        print("Resident demandé :", repr(resident))
+        print("Résidents disponibles :", [
+            repr(r["id"]) for r in carte["residents"]
+        ])
         resident_data = next(
             r for r in carte["residents"]
             if r["id"] == resident

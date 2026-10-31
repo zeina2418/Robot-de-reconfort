@@ -2,7 +2,7 @@
   "format": "robot-reconfort/trace",
   "version": 1,
   "carte": "appartement_01",
-  "scenario": "scenario_01",
+  "scenario": "scenario_02",
   "equipe": [
     "A completer",
     "A completer"
@@ -196,7 +196,7 @@
         0
       ],
       "action": "CHERCHER",
-      "argument": "E",
+      "argument": "S",
       "perception": null,
       "contenu_casier": null,
       "commentaire": null
@@ -209,8 +209,8 @@
         5
       ],
       "casier": [
-        1,
-        1
+        2,
+        0
       ],
       "action": "CHERCHER",
       "argument": "E",
@@ -226,8 +226,8 @@
         5
       ],
       "casier": [
-        1,
-        2
+        2,
+        1
       ],
       "action": "CHERCHER",
       "argument": "E",
@@ -243,34 +243,17 @@
         5
       ],
       "casier": [
-        1,
-        3
+        2,
+        2
       ],
-      "action": "CHERCHER",
-      "argument": "E",
+      "action": "PRENDRE",
+      "argument": "bouton d appel",
       "perception": null,
-      "contenu_casier": null,
+      "contenu_casier": "bouton d appel",
       "commentaire": null
     },
     {
       "t": 12,
-      "demande": 1,
-      "position": [
-        6,
-        5
-      ],
-      "casier": [
-        1,
-        4
-      ],
-      "action": "PRENDRE",
-      "argument": "couverture",
-      "perception": null,
-      "contenu_casier": "couverture",
-      "commentaire": null
-    },
-    {
-      "t": 13,
       "demande": 1,
       "position": [
         6,
@@ -292,7 +275,7 @@
       "commentaire": null
     },
     {
-      "t": 14,
+      "t": 13,
       "demande": 1,
       "position": [
         6,
@@ -314,7 +297,7 @@
       "commentaire": null
     },
     {
-      "t": 15,
+      "t": 14,
       "demande": 1,
       "position": [
         5,
@@ -336,7 +319,7 @@
       "commentaire": null
     },
     {
-      "t": 16,
+      "t": 15,
       "demande": 1,
       "position": [
         5,
@@ -358,7 +341,7 @@
       "commentaire": null
     },
     {
-      "t": 17,
+      "t": 16,
       "demande": 1,
       "position": [
         5,
@@ -380,11 +363,33 @@
       "commentaire": null
     },
     {
-      "t": 18,
+      "t": 17,
       "demande": 1,
       "position": [
         5,
         3
+      ],
+      "casier": [
+        1,
+        0
+      ],
+      "action": "AVANCER",
+      "argument": "O",
+      "perception": {
+        "N": "mur",
+        "S": "libre",
+        "E": "libre",
+        "O": "libre"
+      },
+      "contenu_casier": null,
+      "commentaire": null
+    },
+    {
+      "t": 18,
+      "demande": 1,
+      "position": [
+        5,
+        2
       ],
       "casier": [
         1,
@@ -406,28 +411,6 @@
       "demande": 1,
       "position": [
         5,
-        2
-      ],
-      "casier": [
-        1,
-        0
-      ],
-      "action": "AVANCER",
-      "argument": "O",
-      "perception": {
-        "N": "mur",
-        "S": "libre",
-        "E": "libre",
-        "O": "libre"
-      },
-      "contenu_casier": null,
-      "commentaire": null
-    },
-    {
-      "t": 20,
-      "demande": 1,
-      "position": [
-        5,
         1
       ],
       "casier": [
@@ -446,7 +429,7 @@
       "commentaire": null
     },
     {
-      "t": 21,
+      "t": 20,
       "demande": 1,
       "position": [
         4,
@@ -468,7 +451,7 @@
       "commentaire": null
     },
     {
-      "t": 22,
+      "t": 21,
       "demande": 1,
       "position": [
         3,
@@ -490,7 +473,7 @@
       "commentaire": null
     },
     {
-      "t": 23,
+      "t": 22,
       "demande": 1,
       "position": [
         3,
@@ -512,7 +495,7 @@
       "commentaire": null
     },
     {
-      "t": 24,
+      "t": 23,
       "demande": 1,
       "position": [
         2,
@@ -534,7 +517,7 @@
       "commentaire": null
     },
     {
-      "t": 25,
+      "t": 24,
       "demande": 1,
       "position": [
         2,
@@ -556,7 +539,7 @@
       "commentaire": null
     },
     {
-      "t": 26,
+      "t": 25,
       "demande": 1,
       "position": [
         2,
@@ -578,7 +561,7 @@
       "commentaire": null
     },
     {
-      "t": 27,
+      "t": 26,
       "demande": 1,
       "position": [
         2,
@@ -600,7 +583,7 @@
       "commentaire": null
     },
     {
-      "t": 28,
+      "t": 27,
       "demande": 1,
       "position": [
         2,
@@ -622,7 +605,7 @@
       "commentaire": null
     },
     {
-      "t": 29,
+      "t": 28,
       "demande": 1,
       "position": [
         2,
@@ -644,7 +627,7 @@
       "commentaire": null
     },
     {
-      "t": 30,
+      "t": 29,
       "demande": 1,
       "position": [
         2,
@@ -666,7 +649,7 @@
       "commentaire": null
     },
     {
-      "t": 31,
+      "t": 30,
       "demande": 1,
       "position": [
         2,
@@ -688,7 +671,7 @@
       "commentaire": null
     },
     {
-      "t": 32,
+      "t": 31,
       "demande": 1,
       "position": [
         2,
@@ -710,7 +693,7 @@
       "commentaire": null
     },
     {
-      "t": 33,
+      "t": 32,
       "demande": 1,
       "position": [
         2,
@@ -732,7 +715,7 @@
       "commentaire": null
     },
     {
-      "t": 34,
+      "t": 33,
       "demande": 1,
       "position": [
         3,
@@ -754,7 +737,7 @@
       "commentaire": null
     },
     {
-      "t": 35,
+      "t": 34,
       "demande": 1,
       "position": [
         4,
@@ -776,7 +759,7 @@
       "commentaire": null
     },
     {
-      "t": 36,
+      "t": 35,
       "demande": 1,
       "position": [
         5,
@@ -787,7 +770,7 @@
         0
       ],
       "action": "DONNER",
-      "argument": "couverture",
+      "argument": "bouton d appel",
       "perception": {
         "N": "libre",
         "S": "resident",
@@ -802,15 +785,15 @@
     {
       "demande": 1,
       "resident": "R1",
-      "emotion": "TRISTESSE",
-      "intensite": "MOYENNE",
+      "emotion": "PEUR",
+      "intensite": "FORTE",
       "casier_choisi": [
-        1,
-        4
+        2,
+        2
       ],
       "repli": "aucun",
-      "objet": "couverture",
-      "pas_utilises": 37,
+      "objet": "bouton d appel",
+      "pas_utilises": 36,
       "succes": true,
       "motif_echec": null
     }
@@ -819,6 +802,6 @@
     "demandes": 1,
     "reussies": 1,
     "echecs": 0,
-    "pas_total": 37
+    "pas_total": 36
   }
 }

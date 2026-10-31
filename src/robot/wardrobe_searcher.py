@@ -45,9 +45,6 @@ class WardrobeSearcher:
         while (target := self.target_box()) is not None:
             route = self.get_route(target)
             if route:
-                print("CURRENT:", self._current)
-                print("TARGET:", target)
-                print("ROUTE:", route)
                 for move in route:
                     old_casier = (
                         self._current.intensity.value,

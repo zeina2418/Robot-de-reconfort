@@ -9,6 +9,21 @@
       "numero": 1,
       "resident": "R1",
       "message": "Je me sens tellement seule ce soir, personne n'est passé."
+    },
+    {
+      "numero": 2,
+      "resident": "R2",
+      "message": "Je suis un peu inquiet, j'entends du bruit dans le couloir."
+    },
+    {
+      "numero": 3,
+      "resident": "R1",
+      "message": "Ce bouton est cassé, ça m'agace depuis hier."
+    },
+    {
+      "numero": 4,
+      "resident": "R2",
+      "message": "Ma fille a appelé, je suis vraiment heureux."
     }
   ]
 }
