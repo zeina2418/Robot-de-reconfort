@@ -84,3 +84,16 @@ class Appartement:
             raise ValueError("Invalid cell type in apartment perception.")
 
         return observations
+    
+    def move(self, position, direction):
+        if direction not in DIRECTIONS:
+            raise ValueError("Direction inconnue.")
+
+        dr, dc = DIRECTIONS[direction]
+        row, col = position
+        new_position = (row + dr, col + dc)
+
+        if self._cell_type(*new_position) != "libre":
+            return position, False
+
+        return new_position, True
