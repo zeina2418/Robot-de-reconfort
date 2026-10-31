@@ -49,6 +49,37 @@ def adjacent_goals(target, is_walkable):
     # Tiles from which the robot can interact with a target (A, D or P).
     return [n for n in neighbors(target) if is_walkable(n)]
 
+def exploration_goals(mental_map, is_walkable):
+    goals = []
+
+    for row in range(mental_map.height):
+        for col in range(mental_map.width):
+            position = (row, col)
+
+            # The robot can reach this cell...
+            if is_walkable(position):
+
+                # ...and at least one neighboring cell is unknown.
+                for neighbor in neighbors(position):
+                    nr, nc = neighbor
+
+                    if (0 <= nr < mental_map.height
+                            and 0 <= nc < mental_map.width
+                            and mental_map.tile_type(nr, nc) == "?"):
+                        goals.append(position)
+                        break
+
+    return goals
+
+def is_walkable(mental_map, position):
+    row, col = position
+
+    if not (0 <= row < mental_map.height and
+            0 <= col < mental_map.width):
+        return False
+
+    return mental_map.tile_type(row, col) == "."
+
 
 def to_directions(path):
     # [(1,1),(2,1)] -> ['S']
