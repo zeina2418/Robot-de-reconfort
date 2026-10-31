@@ -105,7 +105,7 @@ def main(argv):
     trace = rio.Trace(
         nom_carte=carte["nom"],
         nom_scenario=scenario["nom"],
-        equipe=["A completer", "A completer"],
+        equipe=["ABDEL SATTAR", "GUIMARAES CAIXETA SILVA"],
     )
 
         

@@ -21,10 +21,6 @@ Exemple :
 python3 src/agent.py data/cartes/appartement_01.json data/cartes/scenario_01.json data/donnees test/sortie_agent.json
 ```
 
-```bash
-python3 src/agent.py data/cartes/appartement_01.json data/cartes/scenario_01.json data/donnees test/sortie_agent.json armoire_standard2
-```
-
 Les quatre arguments correspondent à :
 
 1. **Carte** : décrit l'appartement, ses dimensions, sa grille et les emplacements des éléments.
@@ -32,23 +28,33 @@ Les quatre arguments correspondent à :
 3. **Dossier de données** : contient notamment les données de l'armoire et le dictionnaire des émotions.
 4. **Trace de sortie** : chemin du fichier JSON dans lequel les actions et les perceptions du robot sont enregistrées.
 
+Tester avec une autre armoire (option de développement)
+
+Un cinquième argument facultatif permet de remplacer l'armoire désignée par le scénario, sans modifier celui-ci. Il s'agit du nom du fichier, sans .json, qui doit se trouver dans le dossier de données :
+
+```bash
+python3 src/agent.py data/cartes/appartement_01.json data/cartes/scenario_01.json data/donnees test/sortie_agent.json armoire_standard2
+```
+
+Sans cet argument, le comportement est exactement celui du contrat d'appel (quatre arguments, armoire choisie par le scénario).
+
 **Dépendances :** Python 3. Le projet utilise les modules de la bibliothèque standard de Python ; aucune dépendance externe n'est nécessaire.
 
 ## Comment fonctionne le robot ?
 
 Le programme suit une boucle de perception, de mise à jour de la mémoire, de décision et d'action.
 
-1. **Perception :** le simulateur fournit au robot les informations concernant les quatre cases voisines : nord, sud, est et ouest. Le robot ne consulte pas directement la grille réelle de l'appartement.
+1. **Perception :** le simulateur fournit au robot les informations concernant les quatre cases voisines : nord, sud, est et ouest. Le robot ne consulte pas directement la grille réelle de l'appartement ni le champ objet des casiers : le contenu d'un casier ne se découvre qu'en plaçant le sélecteur devant.
 
-2. **Construction de la carte mentale :** à partir de ses observations, le robot met à jour sa propre carte. Les cases inconnues sont progressivement remplacées par les informations découvertes : murs, cases libres, armoire, dictionnaire et résidents.
+2. **Construction de la carte mentale :** à partir de ses observations, le robot met à jour sa propre carte. Toute case non vue est supposée libre (hypothèse optimiste). Les cases inconnues sont progressivement remplacées par les informations découvertes : murs, cases libres, armoire, dictionnaire et résidents.
 
-3. **Planification et déplacement :** le robot utilise l'algorithme BFS (*Breadth-First Search*) pour trouver un chemin vers ses objectifs. Lorsqu'il ne connaît pas encore de chemin vers une cible, il explore les zones accessibles de sa carte mentale afin de découvrir de nouvelles cases. La planification est recalculée à partir des nouvelles observations.
+3. **Planification et déplacement :** le robot utilise l'algorithme BFS (*Breadth-First Search*) pour trouver un chemin vers ses objectifs. Lorsqu'il ne connaît pas encore de chemin vers une cible, il explore les zones accessibles de sa carte mentale afin de découvrir de nouvelles cases. La planification est recalculée à partir des nouvelles observations.Si le BFS échoue sur la carte mentale, il n'existe aucun chemin dans la réalité (la carte mentale contient au moins autant de cases libres que la réalité) : le résident est déclaré inaccessible.
 
-4. **Consultation du dictionnaire :** si le robot ne connaît pas le mot ou l'expression associé à la demande, il se rend au dictionnaire physique pour identifier l'émotion et son intensité. Le résultat est conservé dans sa mémoire.
+4. **Consultation du dictionnaire :** le robot se rend au dictionnaire physique et exécute CONSULTER. Le message est normalisé (minuscules, sans accents, découpé sur tout ce qui n'est pas une lettre) et le premier mot reconnu donne l'émotion et l'intensité. Le robot mémorise les mots appris, y compris ceux qu'il sait absents, et ne retourne au dictionnaire que lorsqu'un mot du message pourrait encore y figurer.
 
-5. **Recherche dans l'armoire :** à partir de l'émotion et de son intensité, le robot recherche un objet correspondant dans l'armoire à l'aide de son module de recherche.
+5. **Recherche dans l'armoire :** à partir de l'émotion et de son intensité, le robot recherche un objet correspondant dans l'armoire à l'aide de son module de recherche. On calcule la liste des casiers candidats (distance sur la roue de Plutchik ≤ 2, triés par distance, écart d'intensité, intensité la plus faible, sens horaire). Le sélecteur se déplace avec CHERCHER, le robot lit chaque casier devant lequel il passe, mémorise son contenu et prend l'objet du premier candidat garni dans l'ordre de priorité, même s'il en a croisé un autre garni en chemin. Les colonnes bouclent, les lignes non.
 
-6. **Livraison :** une fois l'objet trouvé, le robot se déplace jusqu'au résident concerné et lui remet l'objet.
+6. **Livraison :** une fois l'objet trouvé, le robot se déplace jusqu'au résident concerné et lui remet l'objet. La demande suivante commence là où il se trouve ; la carte mentale, la position du sélecteur et les casiers vus persistent d'une demande à l'autre.
 
 Les actions et les perceptions sont enregistrées dans le fichier de trace fourni en argument.
 
@@ -89,9 +95,9 @@ Les scénarios disponibles dans `data/cartes/` et `data/scenario/` permettent é
 - Exploration des cases inconnues accessibles.
 - Recherche de chemins avec BFS.
 - Navigation vers le dictionnaire, l'armoire et les résidents.
-- Consultation du dictionnaire des émotions.
-- Recherche d'un objet dans l'armoire.
-- Livraison de l'objet au résident.
+- Lecture du dictionnaire : premier mot reconnu, mémorisation des mots appris et des mots absents.
+- Fouille de l'armoire selon l'ordre de priorité de la section 6.2, avec mémorisation de tous les casiers traversés.
+- avec l'étiquette repli et des échecs avec leur motif_echec.
 - Enregistrement des actions et des perceptions dans une trace JSON.
 
 **Limites connues :**
