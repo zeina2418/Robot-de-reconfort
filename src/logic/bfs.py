@@ -106,3 +106,6 @@ def unknown_cells(mental_map):
                 unknown.append((row, col))
 
     return unknown
+
+def exploration_complete(mental_map, is_walkable):
+    return len(exploration_goals(mental_map, is_walkable)) == 0
