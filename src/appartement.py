@@ -117,5 +117,25 @@ class Appartement:
             raise ValueError("Invalid cell type in apartment perception.")
 
         return observations
+
+    def display(self):
+        print("\n========== APPARTEMENT ==========")
+        print(f"Dimensions : {self.height} x {self.width}")
+        print(f"Position du robot : {self.robot_position}")
+
+        print("\n----------- GRILLE --------------")
+
+        for row_index, row in enumerate(self._grid):
+            display_row = list(row)
+
+            if self.robot_position is not None:
+                if row_index == self.robot_position[0]:
+                    display_row[self.robot_position[1]] = "R"
+
+            print(" ".join(display_row))
+
+        print("---------------------------------")
+        print("R = Robot")
+        print("=================================\n")
     
   

@@ -117,6 +117,7 @@ def main(argv):
 
         
     def move_robot(direction, numero, observations):
+        display_mental_map()
         old_position = appartement.robot_position
         _, success = appartement.move(direction)
 
@@ -128,7 +129,6 @@ def main(argv):
             argument=direction,
             perception=observations
         )
-
         return success
     # --------------------------------------------------
     # 4. PROCESS REQUESTS
@@ -136,7 +136,7 @@ def main(argv):
     def receive_perception():
         observations = appartement.perceive()
         observations = valider_perception(observations)
-
+        
         memory.update_map(
             appartement.robot_position,
             observations
@@ -223,7 +223,8 @@ def main(argv):
         if result is not None:
             word, (emotion, intensite) = result
             observations = receive_perception()
-            display_mental_map()
+            #display_mental_map()
+            
             print(f"Found '{word}' in mental dictionary!")
             print(f"Emotion: {emotion.name}")
             print(f"Intensity: {intensite.name}")
@@ -235,8 +236,10 @@ def main(argv):
             print("Navigating to Dictionary.")
             if navigate_to(dictionary_position, numero):
                 observations = receive_perception()
-                display_mental_map()
+                #display_mental_map()
+              
 
+                display_mental_map()
                 trace.ajouter_pas(
                     demande=numero,
                     position=appartement.robot_position,
@@ -264,6 +267,7 @@ def main(argv):
             else:
                 print("Could not reach dictionary.")
                 continue
+        display_mental_map()
         trace.ajouter_pas(
             demande=numero,
             position=appartement.robot_position,
@@ -278,7 +282,8 @@ def main(argv):
         print("Navigating to wardrobe...")
 
         if navigate_to(wardrobe_position, numero):
-            display_mental_map()
+            #display_mental_map()
+            #appartement.display()
             print("Reached wardrobe!")
         else:
             print("Could not reach wardrobe.")
@@ -324,6 +329,7 @@ def main(argv):
 
         print(f"Giving {objet} to {resident}...")
 
+        display_mental_map()
         trace.ajouter_pas(
             demande=numero,
             position=appartement.robot_position,
