@@ -49,6 +49,35 @@ def adjacent_goals(target, is_walkable):
     # Tiles from which the robot can interact with a target (A, D or P).
     return [n for n in neighbors(target) if is_walkable(n)]
 
+def best_frontier(position, target, mental_map, is_walkable):
+    frontiers = exploration_goals(mental_map, is_walkable)
+
+    best_path = None
+    best_score = float("inf")
+
+    for frontier in frontiers:
+        path = shortest_path(position, [frontier], is_walkable)
+
+        if path is None or len(path) < 2:
+            continue
+
+        # Distance from the robot to this frontier
+        travel_cost = len(path) - 1
+
+        # Estimated distance from the frontier to the target
+        target_distance = (
+            abs(frontier[0] - target[0])
+            + abs(frontier[1] - target[1])
+        )
+
+        score = travel_cost + target_distance
+
+        if score < best_score:
+            best_score = score
+            best_path = path
+
+    return best_path
+
 def exploration_goals(mental_map, is_walkable):
     goals = []
 

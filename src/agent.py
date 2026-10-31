@@ -18,7 +18,7 @@ from shared.Emotion import Emotion
 from shared.Intensity import Intensity
 from shared.Wardrobe import Wardrobe
 from robot.memory import Memory, DictionaryMemory, WardrobeMemory
-from logic.bfs import shortest_path, adjacent_goals, to_directions, exploration_goals, is_walkable
+from logic.bfs import shortest_path, adjacent_goals, to_directions, exploration_goals, is_walkable, best_frontier
 from perception import valider_perception
 from appartement import Appartement
 
@@ -162,6 +162,40 @@ def main(argv):
 
         print("------------------------------\n")
 
+    
+
+    def navigate_to(target, numero):
+        print("NAVIGATING")
+
+        while True:
+            observations = receive_perception(position)
+
+            # Can the robot reach a cell adjacent to the target?
+            walkable = lambda pos: is_walkable(memory.map, pos)
+            goals = adjacent_goals(target, walkable)
+
+            path = shortest_path(position, goals, walkable)
+
+            # Target reached!
+            if path == [position]:
+                return True
+
+            # If no known path, explore one frontier.
+            if path is None:
+                path = best_frontier(
+                    position,
+                    target,
+                    memory.map,
+                    walkable
+                )
+
+                if path is None or len(path) < 2:
+                    return False
+
+            direction = to_directions(path)[0]
+
+            if not move_robot(direction, numero, observations):
+                return False
     def navigate_to(target, numero):
         print("NAVIGATING")
         while True:
